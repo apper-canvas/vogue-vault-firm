@@ -14,7 +14,7 @@ body {
   font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fafafa;
+  background-color: #F5FFF5;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -41,15 +41,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .Toastify__toast--error {
-  background-color: #c1121f;
+  background-color: #dc2626;
 }
 
 .Toastify__toast--warning {
-  background-color: #f77f00;
+  background-color: #f59e0b;
 }
 
 .Toastify__toast--info {
-  background-color: #4a5568;
+  background-color: #64748b;
 }
 
 .Toastify__progress-bar {
