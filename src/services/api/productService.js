@@ -1,46 +1,265 @@
-import productsData from "../mockData/products.json";
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import { getApperClient } from "@/services/apperClient";
 
 const productService = {
   getAll: async () => {
-    await delay(300);
-    return [...productsData];
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.fetchRecords('products_c', {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "category_c"}},
+          {"field": {"Name": "subcategory_c"}},
+          {"field": {"Name": "price_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "sizes_c"}},
+          {"field": {"Name": "colors_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "inStock_c"}},
+          {"field": {"Name": "stockCount_c"}},
+          {"field": {"Name": "featured_c"}},
+          {"field": {"Name": "trending_c"}}
+        ]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      throw error;
+    }
   },
 
   getById: async (id) => {
-    await delay(200);
-    const product = productsData.find((p) => p.Id === parseInt(id));
-    if (!product) {
-      throw new Error("Product not found");
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.getRecordById('products_c', id, {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "category_c"}},
+          {"field": {"Name": "subcategory_c"}},
+          {"field": {"Name": "price_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "sizes_c"}},
+          {"field": {"Name": "colors_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "inStock_c"}},
+          {"field": {"Name": "stockCount_c"}},
+          {"field": {"Name": "featured_c"}},
+          {"field": {"Name": "trending_c"}}
+        ]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      if (!response.data) {
+        throw new Error("Product not found");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product by ID:", error);
+      throw error;
     }
-    return { ...product };
   },
 
   getByCategory: async (category) => {
-    await delay(300);
-    return productsData.filter((p) => p.category === category);
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.fetchRecords('products_c', {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "category_c"}},
+          {"field": {"Name": "subcategory_c"}},
+          {"field": {"Name": "price_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "sizes_c"}},
+          {"field": {"Name": "colors_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "inStock_c"}},
+          {"field": {"Name": "stockCount_c"}},
+          {"field": {"Name": "featured_c"}},
+          {"field": {"Name": "trending_c"}}
+        ],
+        where: [{
+          "FieldName": "category_c",
+          "Operator": "EqualTo",
+          "Values": [category]
+        }]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+      throw error;
+    }
   },
 
   getFeatured: async () => {
-    await delay(300);
-    return productsData.filter((p) => p.featured);
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.fetchRecords('products_c', {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "category_c"}},
+          {"field": {"Name": "subcategory_c"}},
+          {"field": {"Name": "price_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "sizes_c"}},
+          {"field": {"Name": "colors_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "inStock_c"}},
+          {"field": {"Name": "stockCount_c"}},
+          {"field": {"Name": "featured_c"}},
+          {"field": {"Name": "trending_c"}}
+        ],
+        where: [{
+          "FieldName": "featured_c",
+          "Operator": "EqualTo",
+          "Values": [true]
+        }]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching featured products:", error);
+      throw error;
+    }
   },
 
   getTrending: async () => {
-    await delay(300);
-    return productsData.filter((p) => p.trending);
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.fetchRecords('products_c', {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "category_c"}},
+          {"field": {"Name": "subcategory_c"}},
+          {"field": {"Name": "price_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "sizes_c"}},
+          {"field": {"Name": "colors_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "inStock_c"}},
+          {"field": {"Name": "stockCount_c"}},
+          {"field": {"Name": "featured_c"}},
+          {"field": {"Name": "trending_c"}}
+        ],
+        where: [{
+          "FieldName": "trending_c",
+          "Operator": "EqualTo",
+          "Values": [true]
+        }]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching trending products:", error);
+      throw error;
+    }
   },
 
   search: async (query) => {
-    await delay(300);
-    const lowerQuery = query.toLowerCase();
-    return productsData.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lowerQuery) ||
-        p.category.toLowerCase().includes(lowerQuery) ||
-        p.description.toLowerCase().includes(lowerQuery)
-    );
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.fetchRecords('products_c', {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "category_c"}},
+          {"field": {"Name": "subcategory_c"}},
+          {"field": {"Name": "price_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "sizes_c"}},
+          {"field": {"Name": "colors_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "inStock_c"}},
+          {"field": {"Name": "stockCount_c"}},
+          {"field": {"Name": "featured_c"}},
+          {"field": {"Name": "trending_c"}}
+        ],
+        whereGroups: [{
+          "operator": "OR",
+          "subGroups": [
+            {"conditions": [{
+              "fieldName": "name_c",
+              "operator": "Contains",
+              "values": [query]
+            }], "operator": ""},
+            {"conditions": [{
+              "fieldName": "category_c",
+              "operator": "Contains",
+              "values": [query]
+            }], "operator": ""},
+            {"conditions": [{
+              "fieldName": "description_c",
+              "operator": "Contains",
+              "values": [query]
+            }], "operator": ""}
+          ]
+        }]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error searching products:", error);
+      throw error;
+    }
   }
 };
 

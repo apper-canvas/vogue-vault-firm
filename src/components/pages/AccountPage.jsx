@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
 import { useAuth } from "@/hooks/useAuth";
 import orderService from "@/services/api/orderService";
+import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import Loading from "@/components/ui/Loading";
+import Error from "@/components/ui/Error";
 
 const AccountPage = () => {
   const { user } = useAuth();
@@ -49,7 +49,7 @@ const AccountPage = () => {
             My Account
           </h1>
           <p className="text-primary/60">
-            Welcome back, {user?.firstName || "Valued Customer"}!
+Welcome back, {user?.firstName_c || user?.Name || "Valued Customer"}!
           </p>
         </div>
 
@@ -91,30 +91,30 @@ const AccountPage = () => {
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <p className="font-semibold text-primary">
-                            Order #{order.orderNumber}
+Order #{order.orderNumber_c}
                           </p>
                           <p className="text-sm text-primary/60">
-                            {new Date(order.createdAt).toLocaleDateString()}
+{new Date(order.CreatedOn).toLocaleDateString()}
                           </p>
                         </div>
                         <Badge
                           variant={
-                            order.status === "Delivered"
+order.status_c === "Delivered"
                               ? "success"
-                              : order.status === "Shipped"
+                              : order.status_c === "Shipped"
                               ? "info"
                               : "warning"
                           }
                         >
-                          {order.status}
+{order.status_c}
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <p className="text-primary/60">
-                          {order.items.length} item(s)
+{order.items_c ? JSON.parse(order.items_c).length : 0} item(s)
                         </p>
                         <p className="font-semibold text-accent">
-                          ${order.total.toFixed(2)}
+                          ${order.total_c ? order.total_c.toFixed(2) : '0.00'}
                         </p>
                       </div>
                     </Link>
@@ -130,20 +130,20 @@ const AccountPage = () => {
                 Account Details
               </h2>
               <div className="space-y-3 text-primary/60">
-                <div>
+<div>
                   <p className="text-sm">Name</p>
                   <p className="font-medium text-primary">
-                    {user?.firstName} {user?.lastName}
+                    {user?.firstName_c || user?.Name} {user?.lastName_c}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm">Email</p>
-                  <p className="font-medium text-primary">{user?.email}</p>
+<p className="font-medium text-primary">{user?.email_c}</p>
                 </div>
                 {user?.phone && (
                   <div>
                     <p className="text-sm">Phone</p>
-                    <p className="font-medium text-primary">{user.phone}</p>
+<p className="font-medium text-primary">{user.phone_c}</p>
                   </div>
                 )}
               </div>

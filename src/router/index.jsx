@@ -1,8 +1,8 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
+import { getRouteConfig } from "@/router/route.utils";
+import Root from "@/layouts/Root";
 import Layout from "@/components/organisms/Layout";
-import ProtectedRoute from "@/components/ProtectedRoute";
-
 const HomePage = lazy(() => import("@/components/pages/HomePage"));
 const CategoryPage = lazy(() => import("@/components/pages/CategoryPage"));
 const ProductDetailPage = lazy(() => import("@/components/pages/ProductDetailPage"));
@@ -33,75 +33,111 @@ const withSuspense = (Component) => (
   </Suspense>
 );
 
+const createRoute = ({
+  path,
+  index,
+  element,
+  access,
+  children,
+  ...meta
+}) => {
+  // Get config for this route
+  let configPath;
+  if (index) {
+    configPath = "/";
+  } else {
+    configPath = path.startsWith('/') ? path : `/${path}`;
+  }
+
+  const config = getRouteConfig(configPath);
+  const finalAccess = access || config?.allow;
+
+  const route = {
+    ...(index ? { index: true } : { path }),
+    element: element ? <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="text-center space-y-4">
+      <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+      </svg>
+    </div>
+  </div>}>{element}</Suspense> : element,
+    handle: {
+      access: finalAccess,
+      ...meta,
+    },
+  };
+
+  if (children && children.length > 0) {
+    route.children = children;
+  }
+
+  return route;
+};
+
 const mainRoutes = [
-  {
+  createRoute({
     path: "",
     index: true,
-    element: withSuspense(HomePage)
-  },
-  {
+    element: <HomePage />
+  }),
+  createRoute({
     path: "category/:category",
-    element: withSuspense(CategoryPage)
-  },
-  {
+    element: <CategoryPage />
+  }),
+  createRoute({
     path: "product/:id",
-    element: withSuspense(ProductDetailPage)
-  },
-  {
+    element: <ProductDetailPage />
+  }),
+  createRoute({
     path: "cart",
-    element: withSuspense(CartPage)
-  },
-  {
+    element: <CartPage />
+  }),
+  createRoute({
     path: "checkout",
-    element: withSuspense(CheckoutPage)
-  },
-  {
+    element: <CheckoutPage />
+  }),
+  createRoute({
     path: "wishlist",
-    element: withSuspense(WishlistPage)
-  },
-  {
+    element: <WishlistPage />
+  }),
+  createRoute({
     path: "login",
-    element: withSuspense(LoginPage)
-  },
-  {
-    path: "register",
-    element: withSuspense(RegisterPage)
-  },
-  {
+    element: <LoginPage />
+  }),
+  createRoute({
+    path: "signup",
+    element: <RegisterPage />
+  }),
+  createRoute({
     path: "account",
-    element: (
-      <ProtectedRoute>
-        {withSuspense(AccountPage)}
-      </ProtectedRoute>
-    )
-  },
-  {
+    element: <AccountPage />
+  }),
+  createRoute({
     path: "orders",
-    element: (
-      <ProtectedRoute>
-        {withSuspense(OrderHistoryPage)}
-      </ProtectedRoute>
-    )
-  },
-  {
+    element: <OrderHistoryPage />
+  }),
+  createRoute({
     path: "profile",
-    element: (
-      <ProtectedRoute>
-        {withSuspense(ProfilePage)}
-      </ProtectedRoute>
-    )
-  },
-  {
+    element: <ProfilePage />
+  }),
+  createRoute({
     path: "*",
-    element: withSuspense(NotFound)
-  }
+    element: <NotFound />
+  })
 ];
 
 const routes = [
   {
     path: "/",
-    element: <Layout />,
-    children: mainRoutes
+    element: <Root />,
+    children: [
+      {
+        path: "/",
+        element: <Layout />,
+        children: mainRoutes
+      }
+    ]
   }
 ];
 

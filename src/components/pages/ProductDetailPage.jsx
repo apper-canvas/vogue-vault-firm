@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import Select from "@/components/atoms/Select";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
-import ProductGrid from "@/components/organisms/ProductGrid";
-import productService from "@/services/api/productService";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import productService from "@/services/api/productService";
+import ApperIcon from "@/components/ApperIcon";
+import Select from "@/components/atoms/Select";
+import Button from "@/components/atoms/Button";
+import ProductGrid from "@/components/organisms/ProductGrid";
+import Loading from "@/components/ui/Loading";
+import Error from "@/components/ui/Error";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -35,12 +35,16 @@ const ProductDetailPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await productService.getById(id);
+const data = await productService.getById(id);
       setProduct(data);
-      setSelectedSize(data.sizes[0]);
-      setSelectedColor(data.colors[0]);
+      
+      const sizes = data.sizes_c ? data.sizes_c.split(',') : [];
+      const colors = data.colors_c ? data.colors_c.split(',') : [];
+      
+      setSelectedSize(sizes[0] || "");
+      setSelectedColor(colors[0] || "");
 
-      const related = await productService.getByCategory(data.category);
+      const related = await productService.getByCategory(data.category_c);
       setRelatedProducts(related.filter((p) => p.Id !== data.Id).slice(0, 4));
     } catch (err) {
       setError(err.message);
@@ -84,20 +88,20 @@ const ProductDetailPage = () => {
             Home
           </button>
           <ApperIcon name="ChevronRight" size={16} />
-          <button
-            onClick={() => navigate(`/category/${product.category}`)}
+<button
+            onClick={() => navigate(`/category/${product.category_c}`)}
             className="hover:text-accent capitalize"
           >
-            {product.category}
+            {product.category_c}
           </button>
           <ApperIcon name="ChevronRight" size={16} />
-          <span className="text-primary">{product.name}</span>
+          <span className="text-primary">{product.name_c || product.Name}</span>
         </div>
 
         {/* Product Details */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Images */}
-          <div className="space-y-4">
+<div className="space-y-4">
             <motion.div
               key={selectedImage}
               initial={{ opacity: 0 }}
@@ -105,13 +109,13 @@ const ProductDetailPage = () => {
               className="aspect-[3/4] bg-white rounded-lg overflow-hidden"
             >
               <img
-                src={product.images[selectedImage]}
-                alt={product.name}
+                src={(product.images_c ? product.images_c.split(',') : [])[selectedImage] || ''}
+                alt={product.name_c || product.Name}
                 className="w-full h-full object-cover"
               />
             </motion.div>
-            <div className="grid grid-cols-4 gap-4">
-              {product.images.map((image, index) => (
+            <div className="flex gap-4">
+              {(product.images_c ? product.images_c.split(',') : []).map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -123,7 +127,7 @@ const ProductDetailPage = () => {
                 >
                   <img
                     src={image}
-                    alt={`${product.name} ${index + 1}`}
+                    alt={`${product.name_c || product.Name} ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -134,20 +138,20 @@ const ProductDetailPage = () => {
           {/* Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-display font-bold text-primary mb-2">
-                {product.name}
+<h1 className="text-3xl sm:text-4xl font-display font-bold text-primary mb-2">
+                {product.name_c || product.Name}
               </h1>
               <p className="text-lg text-primary/60 capitalize">
-                {product.category}
+                {product.category_c}
               </p>
             </div>
 
             <p className="text-4xl font-display font-bold text-accent">
-              ${product.price.toFixed(2)}
+              ${product.price_c ? product.price_c.toFixed(2) : '0.00'}
             </p>
 
-            <p className="text-primary/80 leading-relaxed">
-              {product.description}
+<p className="text-primary/80 leading-relaxed">
+              {product.description_c}
             </p>
 
             <div className="space-y-4">
@@ -156,7 +160,7 @@ const ProductDetailPage = () => {
                 value={selectedSize}
                 onChange={(e) => setSelectedSize(e.target.value)}
               >
-                {product.sizes.map((size) => (
+{(product.sizes_c ? product.sizes_c.split(',') : []).map((size) => (
                   <option key={size} value={size}>
                     {size}
                   </option>
@@ -168,7 +172,7 @@ const ProductDetailPage = () => {
                 value={selectedColor}
                 onChange={(e) => setSelectedColor(e.target.value)}
               >
-                {product.colors.map((color) => (
+{(product.colors_c ? product.colors_c.split(',') : []).map((color) => (
                   <option key={color} value={color}>
                     {color}
                   </option>
@@ -204,7 +208,7 @@ const ProductDetailPage = () => {
                 variant="primary"
                 className="flex-1"
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+disabled={!product.inStock_c}
               >
                 <ApperIcon name="ShoppingCart" size={20} />
                 Add to Cart
@@ -225,12 +229,12 @@ const ProductDetailPage = () => {
               variant="secondary"
               className="w-full"
               onClick={handleBuyNow}
-              disabled={!product.inStock}
+disabled={!product.inStock_c}
             >
               Buy Now
             </Button>
 
-            {!product.inStock && (
+{!product.inStock_c && (
               <div className="bg-error/10 border border-error/20 rounded-lg p-4 flex items-center gap-3">
                 <ApperIcon name="AlertCircle" size={20} className="text-error" />
                 <span className="text-error font-medium">

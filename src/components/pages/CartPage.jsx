@@ -38,7 +38,7 @@ const CartPage = () => {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg p-6 divide-y divide-secondary">
               {cart.map((item, index) => (
-                <CartItem key={`${item.productId}-${item.size}-${item.color}-${index}`} item={item} />
+<CartItem key={`${item.productId}-${item.size}-${item.color}-${index}`} item={item} />
               ))}
             </div>
           </div>

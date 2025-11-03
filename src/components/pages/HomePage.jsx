@@ -23,7 +23,7 @@ const HomePage = () => {
     try {
       setLoading(true);
       setError(null);
-      const [featuredData, trendingData] = await Promise.all([
+const [featuredData, trendingData] = await Promise.all([
         productService.getFeatured(),
         productService.getTrending()
       ]);

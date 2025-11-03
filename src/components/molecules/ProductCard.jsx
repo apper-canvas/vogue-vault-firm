@@ -21,13 +21,13 @@ const ProductCard = ({ product }) => {
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
       className="group cursor-pointer"
-      onClick={() => navigate(`/product/${product.Id}`)}
+onClick={() => navigate(`/product/${product.Id}`)}
     >
       <div className="relative bg-white rounded-lg overflow-hidden mb-4">
         <div className="aspect-[3/4] overflow-hidden">
           <img
-            src={product.images[0]}
-            alt={product.name}
+src={product.images_c ? product.images_c.split(',')[0] : ''}
+            alt={product.name_c || product.Name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
@@ -45,7 +45,7 @@ const ProductCard = ({ product }) => {
           />
         </button>
 
-        {!product.inStock && (
+{!product.inStock_c && (
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
             <span className="text-primary font-medium">Out of Stock</span>
           </div>
@@ -66,12 +66,12 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="space-y-1">
-        <h3 className="font-medium text-primary group-hover:text-accent transition-colors duration-200">
-          {product.name}
+<h3 className="font-medium text-primary group-hover:text-accent transition-colors duration-200">
+          {product.name_c || product.Name}
         </h3>
-        <p className="text-sm text-primary/60">{product.category}</p>
+        <p className="text-sm text-primary/60">{product.category_c}</p>
         <p className="font-display font-semibold text-lg text-primary">
-          ${product.price.toFixed(2)}
+          ${product.price_c ? product.price_c.toFixed(2) : '0.00'}
         </p>
       </div>
     </motion.div>

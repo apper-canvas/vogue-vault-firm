@@ -14,7 +14,7 @@ const CheckoutPage = () => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    firstName: "",
+firstName: "",
     lastName: "",
     email: "",
     phone: "",
@@ -256,7 +256,7 @@ const handleSubmit = async (e) => {
                         Order Items ({cart.length})
                       </h3>
                       <div className="space-y-4">
-                        {cart.map((item, index) => (
+{cart.map((item, index) => (
                           <div key={`${item.productId}-${index}`} className="flex gap-4">
                             <img
                               src={item.image}

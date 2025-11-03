@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import orderService from "@/services/api/orderService";
 import ApperIcon from "@/components/ApperIcon";
 import Badge from "@/components/atoms/Badge";
 import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import orderService from "@/services/api/orderService";
+import Error from "@/components/ui/Error";
 
 const OrderHistoryPage = () => {
   const [orders, setOrders] = useState([]);
@@ -63,19 +63,19 @@ const OrderHistoryPage = () => {
         </h1>
 
         <div className="space-y-4">
-          {orders.map((order) => (
+{orders.map((order) => (
             <div key={order.Id} className="bg-white rounded-lg shadow-sm">
               <div
                 className="p-6 cursor-pointer"
                 onClick={() => toggleOrderDetails(order.Id)}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div>
+                  <div className="flex-1">
                     <h3 className="text-xl font-display font-bold text-primary">
-                      Order #{order.orderNumber}
+                      Order #{order.orderNumber_c}
                     </h3>
                     <p className="text-primary/60">
-                      {new Date(order.createdAt).toLocaleDateString("en-US", {
+{new Date(order.CreatedOn).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric"
@@ -85,14 +85,14 @@ const OrderHistoryPage = () => {
                   <div className="flex items-center gap-4">
                     <Badge
                       variant={
-                        order.status === "Delivered"
+                        order.status_c === "Delivered"
                           ? "success"
-                          : order.status === "Shipped"
+                          : order.status_c === "Shipped"
                           ? "info"
                           : "warning"
                       }
                     >
-                      {order.status}
+{order.status_c}
                     </Badge>
                     <ApperIcon
                       name={expandedOrder === order.Id ? "ChevronUp" : "ChevronDown"}
@@ -104,10 +104,10 @@ const OrderHistoryPage = () => {
 
                 <div className="flex items-center justify-between">
                   <p className="text-primary/60">
-                    {order.items.length} item(s)
+{order.items_c ? JSON.parse(order.items_c).length : 0} item(s)
                   </p>
                   <p className="text-2xl font-display font-bold text-accent">
-                    ${order.total.toFixed(2)}
+                    ${order.total_c ? order.total_c.toFixed(2) : '0.00'}
                   </p>
                 </div>
               </div>
@@ -119,18 +119,26 @@ const OrderHistoryPage = () => {
                       <h4 className="font-semibold text-primary mb-3">
                         Shipping Address
                       </h4>
-                      <div className="text-primary/60">
-                        <p>
-                          {order.shippingAddress.firstName}{" "}
-                          {order.shippingAddress.lastName}
-                        </p>
-                        <p>{order.shippingAddress.address}</p>
-                        <p>
-                          {order.shippingAddress.city},{" "}
-                          {order.shippingAddress.state}{" "}
-                          {order.shippingAddress.zipCode}
-                        </p>
-                        <p>{order.shippingAddress.country}</p>
+<div className="text-primary/60">
+{(() => {
+                            try {
+                              const shippingAddress = JSON.parse(order.shippingAddress_c);
+                              return (
+                                <>
+                                  <p>
+                                    {shippingAddress.firstName} {shippingAddress.lastName}
+                                  </p>
+                                  <p>{shippingAddress.address}</p>
+                                  <p>
+                                    {shippingAddress.city}, {shippingAddress.state} {shippingAddress.zipCode}
+                                  </p>
+                                  <p>{shippingAddress.country}</p>
+                                </>
+                              );
+                            } catch {
+                              return <p>Address information unavailable</p>;
+                            }
+                          })()}
                       </div>
                     </div>
 
@@ -141,24 +149,24 @@ const OrderHistoryPage = () => {
                       <div className="space-y-2 text-primary/60">
                         <div className="flex justify-between">
                           <span>Subtotal</span>
-                          <span>${order.subtotal.toFixed(2)}</span>
+<span>${order.subtotal_c ? order.subtotal_c.toFixed(2) : '0.00'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Shipping</span>
                           <span>
-                            {order.shipping === 0
+                            {(order.shipping_c || 0) === 0
                               ? "FREE"
-                              : `$${order.shipping.toFixed(2)}`}
+                              : `$${(order.shipping_c || 0).toFixed(2)}`}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span>Tax</span>
-                          <span>${order.tax.toFixed(2)}</span>
+                          <span>${order.tax_c ? order.tax_c.toFixed(2) : '0.00'}</span>
                         </div>
                         <div className="flex justify-between font-semibold text-primary text-lg pt-2 border-t border-secondary">
                           <span>Total</span>
                           <span className="text-accent">
-                            ${order.total.toFixed(2)}
+                            ${order.total_c ? order.total_c.toFixed(2) : '0.00'}
                           </span>
                         </div>
                       </div>
@@ -170,36 +178,43 @@ const OrderHistoryPage = () => {
                       Order Items
                     </h4>
                     <div className="space-y-4">
-                      {order.items.map((item, index) => (
-                        <div
-                          key={`${item.productId}-${index}`}
-                          className="flex gap-4 border border-secondary rounded-lg p-4"
-                        >
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-24 h-24 object-cover rounded"
-                          />
-                          <div className="flex-1">
-                            <h5 className="font-semibold text-primary mb-1">
-                              {item.name}
-                            </h5>
-                            <div className="text-sm text-primary/60 space-y-1">
-                              <p>Size: {item.size}</p>
-                              <p>Color: {item.color}</p>
-                              <p>Quantity: {item.quantity}</p>
+{(() => {
+                        try {
+                          const items = JSON.parse(order.items_c);
+                          return items.map((item, index) => (
+                            <div
+                              key={`${item.productId}-${index}`}
+                              className="flex gap-4 border border-secondary rounded-lg p-4"
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-24 h-24 object-cover rounded"
+                              />
+                              <div className="flex-1">
+                                <h5 className="font-semibold text-primary mb-1">
+                                  {item.name}
+                                </h5>
+                                <div className="text-sm text-primary/60 space-y-1">
+                                  <p>Size: {item.size}</p>
+                                  <p>Color: {item.color}</p>
+                                  <p>Quantity: {item.quantity}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-semibold text-accent">
+                                  ${(item.price * item.quantity).toFixed(2)}
+                                </p>
+                                <p className="text-sm text-primary/60">
+${item.price.toFixed(2)} each
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-semibold text-accent">
-                              ${(item.price * item.quantity).toFixed(2)}
-                            </p>
-                            <p className="text-sm text-primary/60">
-                              ${item.price.toFixed(2)} each
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                          ));
+                        } catch {
+                          return <p className="text-primary/60">Order items unavailable</p>;
+                        }
+                      })()}
                     </div>
                   </div>
                 </div>

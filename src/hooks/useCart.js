@@ -23,13 +23,13 @@ export const useCart = () => {
       newCart[existingItemIndex].quantity += quantity;
     } else {
       const newItem = {
-        productId: product.Id,
-        name: product.name,
-        price: product.price,
+productId: product.Id,
+        name: product.name_c || product.Name,
+        price: product.price_c || 0,
         quantity,
         size,
         color,
-        image: product.images[0]
+        image: product.images_c ? product.images_c.split(',')[0] : ''
       };
       newCart = [...cart, newItem];
     }

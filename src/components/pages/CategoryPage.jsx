@@ -47,18 +47,19 @@ const CategoryPage = () => {
     let filtered = [...products];
 
     // Price filter
-    if (priceRange.length > 0) {
+if (priceRange.length > 0) {
       filtered = filtered.filter((product) => {
+        const price = product.price_c || 0;
         return priceRange.some((range) => {
           switch (range) {
             case "under-100":
-              return product.price < 100;
+              return price < 100;
             case "100-200":
-              return product.price >= 100 && product.price < 200;
+              return price >= 100 && price < 200;
             case "200-300":
-              return product.price >= 200 && product.price < 300;
+              return price >= 200 && price < 300;
             case "over-300":
-              return product.price >= 300;
+              return price >= 300;
             default:
               return true;
           }
@@ -68,28 +69,30 @@ const CategoryPage = () => {
 
     // Size filter
     if (sizes.length > 0) {
-      filtered = filtered.filter((product) =>
-        product.sizes.some((size) => sizes.includes(size))
-      );
+filtered = filtered.filter((product) => {
+        const productSizes = product.sizes_c ? product.sizes_c.split(',') : [];
+        return productSizes.some((size) => sizes.includes(size));
+      });
     }
 
     // Color filter
     if (colors.length > 0) {
-      filtered = filtered.filter((product) =>
-        product.colors.some((color) => colors.includes(color))
-      );
+filtered = filtered.filter((product) => {
+        const productColors = product.colors_c ? product.colors_c.split(',') : [];
+        return productColors.some((color) => colors.includes(color));
+      });
     }
 
     // Sorting
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => a.price - b.price);
+filtered.sort((a, b) => (a.price_c || 0) - (b.price_c || 0));
         break;
       case "price-high":
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => (b.price_c || 0) - (a.price_c || 0));
         break;
       case "name":
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        filtered.sort((a, b) => (a.name_c || a.Name || '').localeCompare(b.name_c || b.Name || ''));
         break;
       default:
         break;

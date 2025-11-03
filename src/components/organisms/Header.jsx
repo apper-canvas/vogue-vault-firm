@@ -15,7 +15,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { getCartCount } = useCart();
   const { wishlist } = useWishlist();
-  const { user, logout } = useAuth();
+const { user, logout } = useAuth();
   const cartCount = getCartCount();
 
   const navItems = [
@@ -121,9 +121,9 @@ const Header = () => {
                         <>
                           <div className="px-4 py-2 border-b border-secondary">
                             <p className="font-semibold text-primary">
-                              {user.firstName} {user.lastName}
+{user.firstName_c || user.Name} {user.lastName_c}
                             </p>
-                            <p className="text-sm text-primary/60">{user.email}</p>
+                            <p className="text-sm text-primary/60">{user.email_c}</p>
                           </div>
                           <Link
                             to="/account"
@@ -252,9 +252,9 @@ const Header = () => {
                     <>
                       <div className="px-4 py-2 bg-secondary rounded-lg">
                         <p className="font-semibold text-primary">
-                          {user.firstName} {user.lastName}
+{user.firstName_c || user.Name} {user.lastName_c}
                         </p>
-                        <p className="text-sm text-primary/60">{user.email}</p>
+                        <p className="text-sm text-primary/60">{user.email_c}</p>
                       </div>
                       <Link
                         to="/account"

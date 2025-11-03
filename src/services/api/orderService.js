@@ -1,91 +1,116 @@
-import ordersData from "../mockData/orders.json";
-import authService from "./authService";
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const ORDER_STORAGE_KEY = "vogue_vault_orders";
-
-const getStoredOrders = () => {
-  try {
-    const stored = localStorage.getItem(ORDER_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [...ordersData];
-  } catch (error) {
-    console.error("Error reading orders from localStorage:", error);
-    return [...ordersData];
-  }
-};
-
-const saveOrders = (orders) => {
-  try {
-    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orders));
-  } catch (error) {
-    console.error("Error saving orders to localStorage:", error);
-  }
-};
+import { getApperClient } from "@/services/apperClient";
 
 const orderService = {
   createOrder: async (orderData) => {
-    await delay(400);
-    
-    const currentUser = authService.getCurrentUser();
-    if (!currentUser) {
-      throw new Error("User not authenticated");
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const orderRecord = {
+        orderNumber_c: `VO${Date.now().toString().slice(-8)}`,
+        items_c: JSON.stringify(orderData.items),
+        subtotal_c: orderData.subtotal,
+        shipping_c: orderData.shipping,
+        tax_c: orderData.tax,
+        total_c: orderData.total,
+        shippingAddress_c: JSON.stringify(orderData.shippingAddress),
+        status_c: "Processing"
+      };
+
+      const response = await apperClient.createRecord('orders_c', {
+        records: [orderRecord]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create ${failed.length} orders:${JSON.stringify(failed)}`);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        
+        return successful.length > 0 ? successful[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      throw error;
     }
-    
-    const orders = getStoredOrders();
-    
-    const newOrder = {
-      Id: Math.max(...orders.map((o) => o.Id), 0) + 1,
-      userId: currentUser.Id,
-      orderNumber: `VO${Date.now().toString().slice(-8)}`,
-      items: orderData.items,
-      subtotal: orderData.subtotal,
-      shipping: orderData.shipping,
-      tax: orderData.tax,
-      total: orderData.total,
-      shippingAddress: orderData.shippingAddress,
-      status: "Processing",
-      createdAt: new Date().toISOString()
-    };
-    
-    orders.push(newOrder);
-    saveOrders(orders);
-    
-    return newOrder;
   },
 
   getUserOrders: async () => {
-    await delay(300);
-    
-    const currentUser = authService.getCurrentUser();
-    if (!currentUser) {
-      throw new Error("User not authenticated");
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.fetchRecords('orders_c', {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "orderNumber_c"}},
+          {"field": {"Name": "items_c"}},
+          {"field": {"Name": "subtotal_c"}},
+          {"field": {"Name": "shipping_c"}},
+          {"field": {"Name": "tax_c"}},
+          {"field": {"Name": "total_c"}},
+          {"field": {"Name": "shippingAddress_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "CreatedOn"}}
+        ],
+        orderBy: [{"fieldName": "CreatedOn", "sorttype": "DESC"}]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      throw error;
     }
-    
-    const orders = getStoredOrders();
-    return orders
-      .filter((order) => order.userId === currentUser.Id)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   },
 
   getOrderById: async (orderId) => {
-    await delay(200);
-    
-    const currentUser = authService.getCurrentUser();
-    if (!currentUser) {
-      throw new Error("User not authenticated");
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error("ApperClient not available");
+      }
+
+      const response = await apperClient.getRecordById('orders_c', orderId, {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "orderNumber_c"}},
+          {"field": {"Name": "items_c"}},
+          {"field": {"Name": "subtotal_c"}},
+          {"field": {"Name": "shipping_c"}},
+          {"field": {"Name": "tax_c"}},
+          {"field": {"Name": "total_c"}},
+          {"field": {"Name": "shippingAddress_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "CreatedOn"}}
+        ]
+      });
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching order by ID:", error);
+      throw error;
     }
-    
-    const orders = getStoredOrders();
-    const order = orders.find(
-      (o) => o.Id === parseInt(orderId) && o.userId === currentUser.Id
-    );
-    
-    if (!order) {
-      throw new Error("Order not found");
-    }
-    
-    return order;
   }
 };
 

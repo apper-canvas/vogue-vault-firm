@@ -7,13 +7,13 @@ const CartItem = ({ item }) => {
   return (
     <div className="flex gap-4 py-4">
       <img
-        src={item.image}
+src={item.image}
         alt={item.name}
         className="w-24 h-24 object-cover rounded"
       />
       <div className="flex-1 space-y-2">
         <div className="flex justify-between">
-          <h4 className="font-medium text-primary">{item.name}</h4>
+<h4 className="font-medium text-primary">{item.name}</h4>
           <button
             onClick={() =>
               removeFromCart(item.productId, item.size, item.color)

@@ -32,7 +32,7 @@ const WishlistPage = () => {
       }
 
       const allProducts = await productService.getAll();
-      const wishlistProducts = allProducts.filter((product) =>
+const wishlistProducts = allProducts.filter((product) =>
         wishlist.includes(product.Id)
       );
       setProducts(wishlistProducts);

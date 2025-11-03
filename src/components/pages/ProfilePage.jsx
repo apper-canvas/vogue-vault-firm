@@ -32,11 +32,11 @@ const ProfilePage = () => {
       setError(null);
       const userProfile = await userService.getProfile();
       setProfile(userProfile);
-      setFormData({
-        firstName: userProfile.firstName || "",
-        lastName: userProfile.lastName || "",
-        email: userProfile.email || "",
-        phone: userProfile.phone || ""
+setFormData({
+        firstName: userProfile.firstName_c || "",
+        lastName: userProfile.lastName_c || "",
+        email: userProfile.email_c || "",
+        phone: userProfile.phone_c || ""
       });
     } catch (err) {
       setError(err.message);
@@ -64,7 +64,11 @@ const ProfilePage = () => {
     setSaving(true);
 
     try {
-      const updatedProfile = await userService.updateProfile(formData);
+const updatedProfile = await userService.updateProfile({
+        firstName_c: formData.firstName,
+        lastName_c: formData.lastName,
+        phone_c: formData.phone
+      });
       setProfile(updatedProfile);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
@@ -77,10 +81,10 @@ const ProfilePage = () => {
 
   const handleCancel = () => {
     setFormData({
-      firstName: profile.firstName || "",
-      lastName: profile.lastName || "",
-      email: profile.email || "",
-      phone: profile.phone || ""
+firstName: profile.firstName_c || "",
+      lastName: profile.lastName_c || "",
+      email: profile.email_c || "",
+      phone: profile.phone_c || ""
     });
     setIsEditing(false);
   };
@@ -117,7 +121,7 @@ const ProfilePage = () => {
                     First Name
                   </label>
                   <p className="text-lg font-medium text-primary">
-                    {profile.firstName}
+{profile.firstName_c}
                   </p>
                 </div>
                 <div>
@@ -125,17 +129,17 @@ const ProfilePage = () => {
                     Last Name
                   </label>
                   <p className="text-lg font-medium text-primary">
-                    {profile.lastName}
+                    {profile.lastName_c}
                   </p>
                 </div>
               </div>
 
               <div>
                 <label className="text-sm text-primary/60 block mb-2">
-                  Email
+Email
                 </label>
                 <p className="text-lg font-medium text-primary">
-                  {profile.email}
+                  {profile.email_c}
                 </p>
               </div>
 
@@ -143,49 +147,57 @@ const ProfilePage = () => {
                 <label className="text-sm text-primary/60 block mb-2">
                   Phone
                 </label>
-                <p className="text-lg font-medium text-primary">
-                  {profile.phone || "Not provided"}
+<p className="text-lg font-medium text-primary">
+                  {profile.phone_c || "Not provided"}
                 </p>
               </div>
 
-              {profile.addresses && profile.addresses.length > 0 && (
-                <div>
-                  <label className="text-sm text-primary/60 block mb-3">
-                    Saved Addresses
-                  </label>
-                  <div className="space-y-3">
-                    {profile.addresses.map((address) => (
-                      <div
-                        key={address.Id}
-                        className="border border-secondary rounded-lg p-4"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <p className="font-semibold text-primary">
-                            {address.firstName} {address.lastName}
-                          </p>
-                          {address.isDefault && (
-                            <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">
-                              Default
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-primary/60 text-sm">
-                          <p>{address.address}</p>
-                          <p>
-                            {address.city}, {address.state} {address.zipCode}
-                          </p>
-                          <p>{address.country}</p>
-                        </div>
+{profile.addresses_c && (() => {
+                try {
+                  const addresses = JSON.parse(profile.addresses_c);
+                  return addresses.length > 0 && (
+                    <div>
+                      <label className="text-sm text-primary/60 block mb-3">
+                        Saved Addresses
+                      </label>
+                      <div className="space-y-3">
+                        {addresses.map((address) => (
+                          <div
+                            key={address.Id}
+                            className="border border-secondary rounded-lg p-4"
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <p className="font-semibold text-primary">
+                                {address.firstName} {address.lastName}
+                              </p>
+                              {address.isDefault && (
+                                <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-primary/60 text-sm">
+                              <p>{address.address}</p>
+                              <p>
+                                {address.city}, {address.state} {address.zipCode}
+                              </p>
+                              <p>{address.country}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  );
+                } catch {
+                  return null;
+                }
+              })()}
               )}
 
               <div className="pt-4 border-t border-secondary">
                 <p className="text-sm text-primary/60">
                   Member since{" "}
-                  {new Date(profile.createdAt).toLocaleDateString("en-US", {
+{new Date(profile.CreatedOn).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric"
