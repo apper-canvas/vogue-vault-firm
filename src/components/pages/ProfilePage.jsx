@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useAuth } from "@/hooks/useAuth";
+import userService from "@/services/api/userService";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import { useAuth } from "@/hooks/useAuth";
-import userService from "@/services/api/userService";
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -188,16 +188,15 @@ Email
                       </div>
                     </div>
                   );
-                } catch {
+} catch {
                   return null;
                 }
-              })()}
-              )}
+})()}
 
               <div className="pt-4 border-t border-secondary">
                 <p className="text-sm text-primary/60">
                   Member since{" "}
-{new Date(profile.CreatedOn).toLocaleDateString("en-US", {
+                  {new Date(profile.CreatedOn).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric"
